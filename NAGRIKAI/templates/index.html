@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAGRIK AI - People • Problems • Progress | Delhi Civic Dashboard</title>
+  <link rel="icon" type="image/png" href="/static/assets/bot_avatar.png">
+  
+  <!-- Leaflet CSS for Delhi Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  
+  <!-- Chart.js & Leaflet.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="top-nav">
+    <!-- Brand Logo -->
+    <div class="nav-brand" onclick="window.switchTab('home')" title="NAGRIK AI Home">
+      <div class="brand-logo-icon">
+        <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="#1d4ed8" stroke-width="2.5" fill="#eff6ff" />
+          <path d="M14 26 C14 20, 24 13, 24 13 C24 13, 34 20, 34 26 C34 32, 24 35, 24 35 C24 35, 14 32, 14 26 Z" fill="#f97316" opacity="0.85"/>
+          <path d="M20 25 L24 21 L28 25 M24 21 L24 31" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="24" cy="18" r="2.5" fill="#1e3a8a" />
+        </svg>
+      </div>
+      <div class="brand-text-group">
+        <div class="brand-name">
+          <span class="brand-nagrik">NAGRIK</span>
+          <span class="brand-ai">AI</span>
+        </div>
+        <div class="brand-tagline">People • Problems • Progress</div>
+      </div>
+    </div>
+
+    <!-- Center Search Bar -->
+    <div class="nav-search-bar">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="globalSearchInput" placeholder="Search issues, locations or keywords..." autocomplete="off" />
+      <button class="search-clear-btn" id="searchClearBtn" title="Clear search" style="display: none;">&times;</button>
+    </div>
+
+    <!-- Right Controls: Notification & User Profile -->
+    <div class="nav-right-group">
+      <!-- Notification Bell -->
+      <button class="nav-icon-btn" id="navNotificationBtn" title="Notifications">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge-dot"></span>
+      </button>
+
+      <!-- User Profile Badge -->
+      <div class="nav-profile-chip" id="profileNavBtn" title="Account / Switch Profile">
+        <div class="profile-avatar-circle" id="profileAvatarCircle">
+          {{ user.name[0] if user.name else 'A' }}
+        </div>
+        <span class="profile-username" id="currentProfileName">{{ user.username }}</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout Grid -->
+  <main class="main-layout">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="left-sidebar">
+      <nav class="sidebar-nav">
+        <button class="sidebar-nav-item active" data-tab="home" onclick="window.switchTab('home')">
+          <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span class="nav-label">Home</span>
+        </button>
+
+        <button class="sidebar-nav-item" data-tab="problems" onclick="window.switchTab('problems')">
+          <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span class="nav-label">Problems</span>
+        </button>
+
+        <button class="sidebar-nav-item" data-tab="map" onclick="window.switchTab('map')">
+          <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          <span class="nav-label">Delhi Map</span>
+        </button>
+
+        <button class="sidebar-nav-item" data-tab="statistics" onclick="window.switchTab('statistics')">
+          <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span class="nav-label">Statistics</span>
+        </button>
+
+        <button class="sidebar-nav-item btn-post-action" id="openPostBtn" title="Report New Civic Issue">
+          <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span class="nav-label">Post</span>
+        </button>
+
+        <button class="sidebar-nav-item" onclick="window.showToast('You are caught up with all Delhi civic notifications!', 'info')">
+          <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="nav-label">Notifications</span>
+          <span class="sidebar-nav-dot"></span>
+        </button>
+
+        <button class="sidebar-nav-item" onclick="document.getElementById('profileNavBtn').click()">
+          <svg class="sidebar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span class="nav-label">Settings</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Bottom Graphic Illustration matching Image -->
+      <div class="sidebar-bottom-illustration">
+        <svg viewBox="0 0 240 180" class="city-illustration-svg" preserveAspectRatio="xMidYMid meet">
+          <!-- Sky and Sun -->
+          <circle cx="180" cy="50" r="18" fill="#fde68a" opacity="0.6" />
+          <!-- Hills / Waves -->
+          <path d="M0 140 Q 60 110, 120 135 T 240 130 L 240 180 L 0 180 Z" fill="#dbeafe" opacity="0.6"/>
+          <path d="M0 155 Q 80 140, 160 155 T 240 150 L 240 180 L 0 180 Z" fill="#93c5fd" opacity="0.4"/>
+          <!-- Dome Monument (Delhi / Rashtrapati / High Court silhouette) -->
+          <rect x="75" y="70" width="60" height="60" rx="3" fill="#cbd5e1" opacity="0.7"/>
+          <path d="M70 70 Q 105 35, 140 70 Z" fill="#94a3b8" opacity="0.8"/>
+          <!-- Pillars -->
+          <line x1="85" y1="80" x2="85" y2="130" stroke="#64748b" stroke-width="3"/>
+          <line x1="97" y1="80" x2="97" y2="130" stroke="#64748b" stroke-width="3"/>
+          <line x1="113" y1="80" x2="113" y2="130" stroke="#64748b" stroke-width="3"/>
+          <line x1="125" y1="80" x2="125" y2="130" stroke="#64748b" stroke-width="3"/>
+          <!-- Trees -->
+          <circle cx="45" cy="120" r="14" fill="#86efac" opacity="0.8"/>
+          <circle cx="58" cy="115" r="12" fill="#4ade80" opacity="0.8"/>
+          <rect x="49" y="125" width="4" height="20" fill="#92400e" opacity="0.6"/>
+          <circle cx="175" cy="118" r="15" fill="#4ade80" opacity="0.8"/>
+          <circle cx="190" cy="115" r="12" fill="#86efac" opacity="0.8"/>
+          <rect x="180" y="125" width="4" height="20" fill="#92400e" opacity="0.6"/>
+        </svg>
+        <div class="sidebar-motto-wrap">
+          <div class="sidebar-motto-text">Better Communities Together</div>
+          <svg class="motto-swoosh" viewBox="0 0 120 16" width="100" height="12">
+            <path d="M5 8 Q 60 16, 115 4" stroke="#f97316" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER CONTENT -->
+    <section class="center-content">
+      
+      <!-- HERO BANNER (India Gate photograph background) -->
+      <div class="hero-banner" id="heroBanner">
+        <div class="hero-content">
+          <h1 class="hero-title">A Bridge Between<br>Public and Administration</h1>
+          <p class="hero-subtitle">Report issues. Share your voice. Help build safer, cleaner and stronger communities.</p>
+        </div>
+        <div class="hero-image-wrap">
+          <img src="/static/assets/india_gate.jpg" alt="India Gate Delhi" class="hero-india-gate" onerror="this.style.display='none'" />
+        </div>
+      </div>
+
+      <!-- CATEGORY FILTER PILLS matching Image -->
+      <div class="category-pills-bar">
+        <button class="cat-pill active" data-category="All" onclick="window.filterByCategory('All')">
+          <span>All</span>
+        </button>
+
+        <button class="cat-pill" data-category="Infrastructure" onclick="window.filterByCategory('Infrastructure')">
+          <span class="cat-pill-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19 L4 5 L20 5 L20 19 M2 19 L22 19 M8 5 L8 19 M16 5 L16 19 M4 12 L20 12"></path>
+            </svg>
+          </span>
+          <span>Infrastructure</span>
+        </button>
+
+        <button class="cat-pill" data-category="Sanitation" onclick="window.filterByCategory('Sanitation')">
+          <span class="cat-pill-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </span>
+          <span>Sanitation</span>
+        </button>
+
+        <button class="cat-pill" data-category="Education" onclick="window.filterByCategory('Education')">
+          <span class="cat-pill-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+          </span>
+          <span>Education</span>
+        </button>
+
+        <button class="cat-pill" data-category="Healthcare" onclick="window.filterByCategory('Healthcare')">
+          <span class="cat-pill-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </span>
+          <span>Healthcare</span>
+        </button>
+
+        <button class="cat-pill" data-category="Climate" onclick="window.filterByCategory('Climate')">
+          <span class="cat-pill-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+            </svg>
+          </span>
+          <span>Climate</span>
+        </button>
+      </div>
+
+      <!-- ACTIVE FILTER INDICATOR & QUICK STATS BAR -->
+      <div class="active-filter-bar" id="activeFilterBar">
+        <div class="filter-status-left">
+          <span class="feed-count-badge" id="feedCountBadge">1,000 Complaints</span>
+          <span class="filter-current-tag" id="filterCurrentTag">Category: All</span>
+          <span class="filter-zone-tag" id="filterZoneTag" style="display:none;"></span>
+        </div>
+        <div class="filter-status-right">
+          <!-- Quick Zone Filters -->
+          <button class="zone-filter-btn red" onclick="window.filterByZone('red')" title="Filter Red Zone (High Challenge)">
+            <span class="zone-dot red"></span> Red Zone
+          </button>
+          <button class="zone-filter-btn yellow" onclick="window.filterByZone('yellow')" title="Filter Yellow Zone (Moderate)">
+            <span class="zone-dot yellow"></span> Yellow Zone
+          </button>
+          <button class="zone-filter-btn green" onclick="window.filterByZone('green')" title="Filter Green Zone (Low Challenge)">
+            <span class="zone-dot green"></span> Green Zone
+          </button>
+          <button class="zone-filter-btn all" onclick="window.filterByZone('All')" title="Reset Zone Filter">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN TAB 1: FEED CONTAINER -->
+      <div class="tab-pane active" id="paneFeed">
+        <div class="feed-container" id="feedContainer">
+          <!-- Dynamically populated cards -->
+          <div class="feed-loading-state">
+            <div class="loading-spinner"></div>
+            <div>Loading verified Delhi civic issues...</div>
+          </div>
+        </div>
+
+        <!-- Pagination / Load More -->
+        <div class="feed-pagination-row" id="feedPaginationRow" style="display:none;">
+          <button class="btn-load-more" id="btnLoadMore" onclick="window.loadMorePosts()">
+            Load More Complaints
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN TAB 2: DELHI ZONES MAP -->
+      <div class="tab-pane" id="paneMap">
+        <div class="map-view-card">
+          <div class="map-view-header">
+            <div>
+              <h2 class="section-title">Delhi Civic Challenge Zones & Hotspots</h2>
+              <p class="section-desc">Interactive geographic view of 1,000 complaints across Delhi. Color-coded into Red (High Challenge), Yellow (Moderate), and Green (Low Challenge) zones.</p>
+            </div>
+            <div class="map-legend">
+              <span class="legend-chip red"><span class="dot red"></span> Red Zone (> 20 Complaints)</span>
+              <span class="legend-chip yellow"><span class="dot yellow"></span> Yellow Zone (8-20 Complaints)</span>
+              <span class="legend-chip green"><span class="dot green"></span> Green Zone (< 8 Complaints)</span>
+            </div>
+          </div>
+          <div id="delhiLeafletMap" style="height: 540px; width: 100%; border-radius: 12px;"></div>
+        </div>
+      </div>
+
+      <!-- MAIN TAB 3: STATISTICAL OVERVIEW & CHARTS -->
+      <div class="tab-pane" id="paneStatistics">
+        <div class="stats-overview-container">
+          
+          <!-- Key Metrics Grid -->
+          <div class="metrics-grid">
+            <div class="metric-card total">
+              <div class="metric-val" id="statTotalComplaints">1,000</div>
+              <div class="metric-label">Total Verified Complaints</div>
+              <div class="metric-sub">Strictly within NCT of Delhi</div>
+            </div>
+            <div class="metric-card red">
+              <div class="metric-val" id="statRedCount">327</div>
+              <div class="metric-label">🔴 Red Zone Hotspots</div>
+              <div class="metric-sub">High civic challenge areas</div>
+            </div>
+            <div class="metric-card yellow">
+              <div class="metric-val" id="statYellowCount">470</div>
+              <div class="metric-label">🟡 Yellow Zone Areas</div>
+              <div class="metric-sub">Moderate maintenance strain</div>
+            </div>
+            <div class="metric-card green">
+              <div class="metric-val" id="statGreenCount">203</div>
+              <div class="metric-label">🟢 Green Zone Sectors</div>
+              <div class="metric-sub">Well-maintained corridors</div>
+            </div>
+          </div>
+
+          <!-- Trend Graph: Increase / Decrease of Problems -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div>
+                <h3 class="chart-title">Timeline Trend: Increase vs. Decrease of Civic Problems in Delhi</h3>
+                <p class="chart-desc">Monthly progression showing reporting spikes (monsoon drainage, winter air pollution) versus resolution rate.</p>
+              </div>
+              <div class="chart-toggles">
+                <button class="chart-toggle-btn active" onclick="window.updateTrendMetric('all')">All Issues</button>
+                <button class="chart-toggle-btn" onclick="window.updateTrendMetric('categories')">By Category</button>
+                <button class="chart-toggle-btn" onclick="window.updateTrendMetric('resolution')">Resolved vs Open</button>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height: 320px; position: relative;">
+              <canvas id="trendChartCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Two Column Analytics Grid -->
+          <div class="analytics-two-col">
+            <!-- Most Common Complaints Breakdown -->
+            <div class="chart-card">
+              <h3 class="chart-title">Most Common Civic Complaints in Delhi</h3>
+              <p class="chart-desc">Dominant problem types across all 5 municipal categories.</p>
+              <div id="problemClustersList" class="problem-clusters-list">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Location-Wise Challenges Ranking -->
+            <div class="chart-card">
+              <h3 class="chart-title">Location-Wise Challenge Ranking (Top Delhi Localities)</h3>
+              <p class="chart-desc">Localities requiring priority municipal infrastructure intervention.</p>
+              <div class="location-table-wrap">
+                <table class="location-ranking-table">
+                  <thead>
+                    <tr>
+                      <th>Locality</th>
+                      <th>Zone</th>
+                      <th>Complaints</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="locationRankingBody">
+                    <!-- Dynamically populated -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="right-sidebar">
+      
+      <!-- Card 1: Issues by category matching Image 2 -->
+      <div class="category-widget">
+        <h2 class="category-widget-title">Issues by category</h2>
+        <div class="category-list" id="categoryWidgetList">
+          <!-- Dynamically populated matching Image 2 icons and progress bars -->
+          <div style="font-size: 13px; color: #64748b;">Loading categories...</div>
+        </div>
+      </div>
+
+      <!-- Card 2: Together for Stronger Communities matching Image -->
+      <div class="community-card">
+        <div class="community-icon-circle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h3 class="community-title">Together for Stronger Communities</h3>
+        <p class="community-text">Your voice matters. Help improve your city by reporting real issues and supporting positive change.</p>
+        
+        <!-- Bottom Skyline with Wavy Blue Ribbons -->
+        <div class="community-graphic-wrap">
+          <svg viewBox="0 0 280 90" class="community-skyline-svg" preserveAspectRatio="none">
+            <!-- Skyline buildings -->
+            <rect x="20" y="30" width="18" height="40" fill="#94a3b8" opacity="0.4"/>
+            <rect x="42" y="20" width="14" height="50" fill="#cbd5e1" opacity="0.6"/>
+            <rect x="60" y="35" width="22" height="35" fill="#94a3b8" opacity="0.5"/>
+            <rect x="180" y="25" width="16" height="45" fill="#cbd5e1" opacity="0.6"/>
+            <rect x="200" y="15" width="14" height="55" fill="#94a3b8" opacity="0.4"/>
+            <rect x="220" y="32" width="24" height="38" fill="#cbd5e1" opacity="0.6"/>
+            <circle cx="105" cy="40" r="12" fill="#86efac" opacity="0.7"/>
+            <circle cx="150" cy="42" r="14" fill="#86efac" opacity="0.7"/>
+            <!-- Wavy Blue Ribbons -->
+            <path d="M0 55 Q 70 35, 140 55 T 280 50 L 280 90 L 0 90 Z" fill="#93c5fd" opacity="0.6"/>
+            <path d="M0 68 Q 90 52, 170 66 T 280 62 L 280 90 L 0 90 Z" fill="#2563eb" opacity="0.85"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Quick Delhi Map Launcher Pill -->
+      <div class="map-shortcut-card" onclick="window.switchTab('map')">
+        <div class="shortcut-icon">🗺️</div>
+        <div class="shortcut-info">
+          <div class="shortcut-title">Delhi Zones Interactive Map</div>
+          <div class="shortcut-sub">Explore Red, Yellow & Green sectors</div>
+        </div>
+        <div class="shortcut-arrow">&rarr;</div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- FLOATING AI ROBOT BUTTON -->
+  <button class="bot-floating-btn" id="botFloatingBtn" title="NAGRIK AI - Delhi Civic Problem Assistant">
+    <img src="/static/assets/bot_avatar.png" alt="NAGRIK Bot" onerror="this.src='/static/assets/logo_full.png'" />
+    <span class="bot-badge-pulse"></span>
+  </button>
+
+  <!-- CHAT DRAWER (Groq LLM Civic Assistant) -->
+  <div class="chat-drawer" id="chatDrawer">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <img src="/static/assets/bot_avatar.png" class="chat-header-avatar" alt="AI Bot" />
+        <div>
+          <div class="chat-header-title">NAGRIK AI Assistant</div>
+          <div class="chat-header-subtitle">
+            <span class="status-dot"></span> Powered by Groq LLM | Delhi Grievance Engine
+          </div>
+        </div>
+      </div>
+      <button class="btn-chat-close" id="btnChatClose" title="Close Assistant">&times;</button>
+    </div>
+
+    <!-- Quick Action Chips -->
+    <div class="chat-quick-chips">
+      <button class="chat-chip" data-query="How to report overflowing garbage in Lajpat Nagar under MCD rules?">🗑️ Garbage Escalation</button>
+      <button class="chat-chip" data-query="What is the official PWD SLA for fixing large road potholes in Delhi?">🕳️ Pothole e-SLA</button>
+      <button class="chat-chip" data-query="How to file a complaint for dust pollution under Delhi GRAP rules?">🍃 Air/Dust GRAP</button>
+      <button class="chat-chip" data-query="Mohalla clinic is out of diabetes medicines. Who is the nodal officer?">🩺 Medicine Shortage</button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg assistant">
+        Namaste! I am <strong>NAGRIK AI</strong>, powered by Groq LLM.
+        <br><br>
+        Ask me any question regarding civic issues, official helplines (MCD 311, DJB 1916, PWD 1800110093, Green Delhi App), or your legal rights under the <strong>Delhi Right to Service Act</strong>.
+        <br><br>
+        How may I help your neighborhood today?
+      </div>
+    </div>
+
+    <!-- Chat Input Bar -->
+    <div class="chat-input-bar">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Describe a civic problem in English, Hindi, or Hinglish..." />
+      <button class="btn-chat-send" id="btnChatSend" title="Send Message">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: POST CIVIC PROBLEM -->
+  <div class="modal-overlay" id="postModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Report a Civic Problem in Delhi</h3>
+        <button class="modal-close-btn" id="cancelPostBtn">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Moderation Alert Banner -->
+        <div class="moderation-alert" id="moderationAlert">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-text" id="moderationAlertBody"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="postCategory">Category</label>
+          <select id="postCategory" class="form-select">
+            <option value="Infrastructure">Infrastructure (Roads, Bridges, Streetlights, Water Mains)</option>
+            <option value="Sanitation">Sanitation (Garbage, Open Drains, Sewage, Debris)</option>
+            <option value="Education">Education (Government Schools, Desks, Facilities)</option>
+            <option value="Healthcare">Healthcare (Mohalla Clinics, Hospitals, Medicines)</option>
+            <option value="Climate">Climate (Dust, Open Biomass Burning, Trees, Smog)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="postTitle">Issue Title</label>
+          <input type="text" id="postTitle" class="form-input" placeholder="e.g. Garbage not collected for 3 days in our area" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="postLocation">Delhi Locality</label>
+          <input type="text" id="postLocation" class="form-input" placeholder="e.g. Lajpat Nagar, South Delhi" list="delhiLocalityDatalist" />
+          <datalist id="delhiLocalityDatalist">
+            <option value="Lajpat Nagar, South Delhi">
+            <option value="Rohini Sector 16, North West Delhi">
+            <option value="Connaught Place, New Delhi">
+            <option value="Okhla Phase 3, South Delhi">
+            <option value="Dwarka Sector 10, South West Delhi">
+            <option value="Karol Bagh, Central Delhi">
+            <option value="Mayur Vihar Phase 1, East Delhi">
+            <option value="Janakpuri, West Delhi">
+            <option value="Shahdara, East Delhi">
+            <option value="Pitampura, North West Delhi">
+            <option value="Civil Lines, Central Delhi">
+            <option value="Uttam Nagar, West Delhi">
+            <option value="Chanakyapuri, New Delhi">
+          </datalist>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="postDescription">Problem Description</label>
+          <textarea id="postDescription" class="form-textarea" rows="3" placeholder="Provide details of the problem, duration, and safety hazards..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Upload Evidence Image (Optional)</label>
+          <input type="file" id="postImageInput" accept="image/*" class="form-file-input" />
+          <div class="image-preview-box">
+            <img id="postImagePreview" src="/static/assets/post_pothole.png" alt="Preview" />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="document.getElementById('cancelPostBtn').click()">Cancel</button>
+        <button class="btn-primary" id="uploadPostBtn">Submit & Generate AI Solution</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AUTH / SWITCH PROFILE -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-dialog small">
+      <div class="modal-header">
+        <h3 class="modal-title">Citizen Profile</h3>
+        <button class="modal-close-btn" onclick="document.getElementById('authModal').classList.remove('open')">&times;</button>
+      </div>
+      <form id="authForm" class="modal-body">
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
+          Switch citizen identity or log in to track your reported civic issues.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="authName">Full Name</label>
+          <input type="text" id="authName" class="form-input" value="{{ user.name }}" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="authUsername">Username / Citizen ID</label>
+          <input type="text" id="authUsername" class="form-input" value="{{ user.username }}" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="authPassword">Password</label>
+          <input type="password" id="authPassword" class="form-input" value="password123" required />
+        </div>
+        <div class="modal-footer" style="padding: 0; margin-top: 16px;">
+          <button type="submit" class="btn-primary" style="width: 100%;">Save & Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main JavaScript Controller -->
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/chat.js"></script>
+</body>
+</html>
