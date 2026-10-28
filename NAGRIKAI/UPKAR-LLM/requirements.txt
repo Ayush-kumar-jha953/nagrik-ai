@@ -1,8 +1,0 @@
-streamlit
-langchain>=1.0
-langchain-groq
-langgraph
-python-dotenv
-pandas
-numpy
-pillow
