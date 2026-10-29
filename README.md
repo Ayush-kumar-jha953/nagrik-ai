@@ -1,6 +1,7 @@
 <div align="center">
 
-<img src="static/assets/logo_full.png" alt="NAGRIK AI" width="360">
+<img width="317" height="175" alt="image" src="https://github.com/user-attachments/assets/bf4465a8-651d-4ab2-9c29-7553545000c8" />
+
 
 # NAGRIK AI — From Civic Problems to Actionable Solutions
 
