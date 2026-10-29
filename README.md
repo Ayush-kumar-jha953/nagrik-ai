@@ -18,7 +18,7 @@
 The following visuals are taken from our project presentation. They explain the problem, prototype workflow, interface concept, value, and future direction.
 
 <p align="center">
-  <img src="docs/presentation-assets/image-1-1.jpg" alt="NAGRIK AI title slide" width="90%">
+  <img src="docs/presentation-assets/image-1-1.png" alt="NAGRIK AI title slide" width="90%">
 </p>
 
 <p align="center"><em>Figure 1 — NAGRIK AI: From Civic Problems to Actionable Solutions.</em></p>
@@ -27,40 +27,62 @@ The following visuals are taken from our project presentation. They explain the 
 <summary><strong>More slides from our presentation</strong> (click to expand)</summary>
 
 ### The problem and our solution
-![Problem statement and solution](docs/presentation-assets/image-2-1.jpg)
+![Problem statement and solution](docs/presentation-assets/image-2-2.png)
 
 ### Working of our current prototype
-![Prototype workflow](docs/presentation-assets/image-3-1.jpg)
+![Prototype workflow](docs/presentation-assets/image-3-3.png)
 
 ### Glimpses of our prototype
-![Prototype overview](docs/presentation-assets/image-4-1.jpg)
+![Prototype overview](docs/presentation-assets/image-4-4.png)
 
 ### What does it solve?
-![Civic value](docs/presentation-assets/image-5-1.jpg)
+![Civic value](docs/presentation-assets/image-5-5.png)
 
 ### Practical commercial value
-![Practical commercial value](docs/presentation-assets/image-6-1.jpg)
+![Practical commercial value](docs/presentation-assets/image-6-6.png)
 
 ### Future vision
-![Future vision of NAGRIK AI](docs/presentation-assets/image-7-1.jpg)
+![Future vision of NAGRIK AI](docs/presentation-assets/image-7-7.png)
 
 </details>
 
-> **Live application screenshots:** The slides above are presentation visuals, not a claim that every screen or feature shown is fully implemented. Add fresh screenshots from the running code in the spaces below.
+> **Note:** The slides above are presentation visuals, not a claim that every screen or feature shown is fully implemented. The screenshots below are from the running code.
 
-### Screenshots from the running application
+## Screenshots from the running application
 
-| Screen | Add your screenshot |
-|---|---|
-| Login / sign-in page | `docs/screenshots/01-login.png` |
-| Main civic feed | `docs/screenshots/02-home-feed.png` |
-| Create a report | `docs/screenshots/03-create-report.png` |
-| Category statistics / map | `docs/screenshots/04-statistics-map.png` |
-| AI civic guidance / chat | `docs/screenshots/05-ai-guidance.png` |
-| UPKAR-ML message checker | `docs/screenshots/06-ml-checker.png` |
-| UPKAR-LLM assistant | `docs/screenshots/07-llm-assistant.png` |
+### Login / sign-in page
+<p align="center"><img src="docs/screenshots/01-login.png" alt="Login page" width="85%"></p>
 
-Create a `docs/screenshots/` folder and place screenshots with the exact filenames above, or update the paths. The screenshots are intentionally left as placeholders; they will not display until you add the files.
+### Main civic feed
+<p align="center"><img src="docs/screenshots/02-home-feed.png" alt="Home feed" width="85%"></p>
+
+### Create a report
+<p align="center"><img src="docs/screenshots/03-create-report.png" alt="Create report" width="85%"></p>
+
+### Category statistics
+<p align="center">
+  <img src="docs/screenshots/04-statistics1.png" alt="Statistics 1" width="45%">
+  <img src="docs/screenshots/04-statistics2.png" alt="Statistics 2" width="45%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/04-statistics3.png" alt="Statistics 3" width="45%">
+  <img src="docs/screenshots/04-statistics4.png" alt="Statistics 4" width="45%">
+</p>
+
+### Map view
+<p align="center"><img src="docs/screenshots/07-map.png" alt="Civic issues map" width="85%"></p>
+
+### AI civic guidance
+<p align="center"><img src="docs/screenshots/05-ai-guidance.png" alt="AI civic guidance" width="85%"></p>
+
+### UPKAR-ML message checker
+<p align="center">
+  <img src="docs/screenshots/06-ml-detector1.png" alt="UPKAR-ML detector 1" width="45%">
+  <img src="docs/screenshots/06-ml-detector2.png" alt="UPKAR-ML detector 2" width="45%">
+</p>
+
+### UPKAR-LLM assistant
+<p align="center"><img src="docs/screenshots/06-llm-assistant.png" alt="UPKAR-LLM assistant" width="85%"></p>
 
 ---
 
