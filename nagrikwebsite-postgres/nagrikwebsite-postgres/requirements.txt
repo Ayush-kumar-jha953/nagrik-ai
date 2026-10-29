@@ -1,0 +1,16 @@
+flask
+psycopg2-binary
+python-dotenv
+groq
+langchain>=1.0
+langchain-groq
+langgraph
+streamlit
+pandas
+numpy
+pillow
+matplotlib
+seaborn
+nltk
+indic-nlp-library
+scikit-learn

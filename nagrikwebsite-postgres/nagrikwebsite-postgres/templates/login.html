@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - NAGRIK AI</title>
+  <link rel="icon" type="image/png" href="/static/assets/bot_avatar.png">
+  <style>
+    :root { --navy:#1e3a8a; --blue:#2563eb; --blue-h:#1d4ed8; --muted:#64748b; --border:#e2e8f0; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+           font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:#0f172a;
+           background:linear-gradient(rgba(15,23,42,.62),rgba(15,23,42,.62)),url('/static/assets/india_gate.jpg') center/cover no-repeat; }
+    .card { width:100%; max-width:400px; background:#fff; border-radius:16px; padding:32px 28px;
+            box-shadow:0 20px 40px rgba(0,0,0,.3); }
+    .logo { display:block; height:48px; margin:0 auto 8px; }
+    h1 { text-align:center; font-size:22px; color:var(--navy); }
+    .tag { text-align:center; font-size:13px; color:var(--muted); margin:4px 0 22px; }
+    label { display:block; font-size:13px; font-weight:600; margin:14px 0 6px; }
+    input { width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; }
+    input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+    button { width:100%; margin-top:22px; padding:12px; border:0; border-radius:8px; background:var(--blue);
+             color:#fff; font-size:15px; font-weight:600; cursor:pointer; }
+    button:hover { background:var(--blue-h); }
+    button:disabled { opacity:.6; cursor:wait; }
+    .err { display:none; margin-top:14px; padding:10px 12px; border-radius:8px; background:#fee2e2; color:#b91c1c; font-size:13px; }
+    .hint { margin-top:16px; font-size:12px; color:var(--muted); text-align:center; line-height:1.5; }
+    #nameRow { display:none; }
+  </style>
+</head>
+<body>
+  <form class="card" id="loginForm" autocomplete="on">
+    <img class="logo" src="/static/assets/nagrik_logo.png" alt="NAGRIK AI" onerror="this.style.display='none'">
+    <h1>NAGRIK AI</h1>
+    <p class="tag">People • Problems • Progress</p>
+
+    <label for="username">Username / Citizen ID</label>
+    <input id="username" name="username" required autofocus>
+
+    <div id="nameRow">
+      <label for="name">Full Name <span style="font-weight:400;color:#64748b">(new account only)</span></label>
+      <input id="name" name="name">
+    </div>
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required>
+
+    <div class="err" id="err"></div>
+    <button type="submit" id="btn">Login</button>
+    <p class="hint">New here? Just type a new username and password, then tap
+      <a href="#" id="showName">add my name</a> if you want a display name. Your account is created on first login.</p>
+  </form>
+
+  <script>
+    document.getElementById("showName").addEventListener("click", function (e) {
+      e.preventDefault();
+      document.getElementById("nameRow").style.display = "block";
+      document.getElementById("name").focus();
+    });
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var btn = document.getElementById("btn"), err = document.getElementById("err");
+      err.style.display = "none"; btn.disabled = true; btn.textContent = "Signing in...";
+      try {
+        var res = await fetch("/api/login", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: document.getElementById("username").value,
+            name: document.getElementById("name").value,
+            password: document.getElementById("password").value
+          })
+        });
+        var data = await res.json();
+        if (data.success) { window.location.href = "/"; return; }
+        err.textContent = data.error || "Login failed."; err.style.display = "block";
+      } catch (ex) {
+        err.textContent = "Cannot reach the server."; err.style.display = "block";
+      }
+      btn.disabled = false; btn.textContent = "Login";
+    });
+  </script>
+</body>
+</html>
